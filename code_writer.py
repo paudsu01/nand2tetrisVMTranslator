@@ -9,11 +9,8 @@ class Code_writer:
             'argument': "@ARG\n",
             'this':"@THIS\n",
             'that':"@THAT\n",
-            'constant': "D=A",
-            'or': "M=M|D\n",
-            'eq': "D;JEQ\n",
-            'gt': "D;JGT\n",
-            'lt': "D;JLT\n",
+            'pointer0': "@THIS\nD=M\n",
+            'pointer1': "@THAT\nD=M\n",
         }
 
 
@@ -45,11 +42,19 @@ class Code_writer:
 
     @classmethod
     def __store_address_in_d_using_indirect_addressing(cls, ins: Instruction) -> str:
-        return f"@{cls.__memory_command_to_assembly_mapping[ins.memory_ins]}\nD=M\n@{ins.memory_index}\nA=A+D\nD=M"
+        return f"{cls.__memory_command_to_assembly_mapping[ins.memory_segment]}D=M\n@{ins.memory_index}\nA=A+D\nD=M\n"
 
     @classmethod
     def __load_constant(cls, value: str) -> str:
         return f"@{value}\nD=A\n"
+    
+    @classmethod
+    def __temp_code_push(cls, value: str) -> str:
+        return f"@5\nD=A\n@{value}\nA=A+D\nA=M\nD=M\n"
+
+    @classmethod
+    def __static_code_push(cls, index: str) -> str:
+        return f"@{cls.filename}.{index}\nD=M\n"
 
     @classmethod
     def __pop_value_into_d_register(cls):
@@ -74,7 +79,7 @@ class Code_writer:
         if instruction.type == Arithmetic_instruction:
             return f'// {instruction.arithmetic_ins}\n'
         elif instruction.type == Memory_instruction:
-            return f'// {instruction.memory_ins} {instruction.memory_segment} {instruction.memory_segment}\n'
+            return f'// {instruction.memory_ins} {instruction.memory_segment} {instruction.memory_index}\n'
 
     """ Public methods """ 
     @classmethod
@@ -84,12 +89,12 @@ class Code_writer:
     @classmethod
     def code(cls, instruction):
 
+        assembly_code = cls.__comment(instruction)
         # Handle arithmetic instructions
         if instruction.type == Arithmetic_instruction:
 
-            assembly_code = cls.__comment(instruction) \
-                            + cls.__pop_value_into_d_register() \
-                            + cls.__decrement_address() \
+            assembly_code += cls.__pop_value_into_d_register() \
+                            + cls.__decrement_address()
 
             if instruction.arithmetic_ins in ['eq', 'lt', 'gt']:
                 assembly_code += cls.__code_for_jump(instruction.arithmetic_ins) + cls.__move_d_in_sp_minus_two() 
@@ -97,17 +102,25 @@ class Code_writer:
                 assembly_code += cls.__arithmetic_command_to_assembly_mapping[instruction.arithmetic_ins]
 
             assembly_code += cls.__decrement_stack_pointer()
-            return assembly_code
-
         # Handle memory instructions
         else:
+
             if instruction.memory_ins == 'push':
+
                 if instruction.memory_segment == 'constant':
-                    assembly_code = cls.__load_constant(instruction.memory_index)
+                    assembly_code += cls.__load_constant(instruction.memory_index)
+                elif instruction.memory_segment == 'temp':
+                    assembly_code += cls.__temp_code_push(instruction.memory_index)
+                elif instruction.memory_segment == 'static':
+                    assembly_code += cls.__static_code_push(instruction.memory_index)
+                elif instruction.memory_segment == 'pointer':
+                    assembly_code += cls.__memory_command_to_assembly_mapping[f'{instruction.memory_segment}{instruction.memory_index}']
                 else:
-                    assembly_code = cls.__store_address_in_d_using_indirect_addressing(instruction) 
+                    assembly_code += cls.__store_address_in_d_using_indirect_addressing(instruction)
+
                 assembly_code += cls.__push_d_register_onto_stack() + cls.__increment_stack_pointer()
             else:
                 pass
+        return assembly_code
 
 
