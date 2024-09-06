@@ -4,7 +4,17 @@ from instruction import Arithmetic_instruction, Memory_instruction, Instruction
 class Code_writer:
     
     __currentLabelNumber = 0
-    __memory_command_to_assembly_mapping = {
+    __memory_command_to_assembly_mapping_pop = {
+            'local': "@LCL\nD=M\n",
+            'argument': "@ARG\nD=M\n",
+            'this':"@THIS\nD=M\n",
+            'that':"@THAT\nD=M\n",
+            'pointer0': "@THIS\nD=A\n",
+            'pointer1': "@THAT\nD=A\n",
+            'temp': "@5\nD=A\n",
+        }
+
+    __memory_command_to_assembly_mapping_push = {
             'local': "@LCL\n",
             'argument': "@ARG\n",
             'this':"@THIS\n",
@@ -12,7 +22,6 @@ class Code_writer:
             'pointer0': "@THIS\nD=M\n",
             'pointer1': "@THAT\nD=M\n",
         }
-
 
     __arithmetic_command_to_assembly_mapping = {
             'add': "M=M+D\n",
@@ -26,7 +35,6 @@ class Code_writer:
             'lt': "D;JLT\n",
         }
 
-
     @classmethod
     def __increment_stack_pointer(cls):
         return "@SP\nM=M+1\n"
@@ -37,12 +45,16 @@ class Code_writer:
         return "@SP\nA=M\nM=D\n"
 
     @classmethod
+    def __add_value_to_d_register(cls, value: str) -> str:
+        return f'@{value}\nD=D+A\n'
+
+    @classmethod
     def __decrement_stack_pointer(cls):
         return "@SP\nM=M-1\n"
 
     @classmethod
     def __store_address_in_d_using_indirect_addressing(cls, ins: Instruction) -> str:
-        return f"{cls.__memory_command_to_assembly_mapping[ins.memory_segment]}D=M\n@{ins.memory_index}\nA=A+D\nD=M\n"
+        return f"{cls.__memory_command_to_assembly_mapping_push[ins.memory_segment]}D=M\n@{ins.memory_index}\nA=A+D\nD=M\n"
 
     @classmethod
     def __load_constant(cls, value: str) -> str:
@@ -57,8 +69,20 @@ class Code_writer:
         return f"@{cls.filename}.{index}\nD=M\n"
 
     @classmethod
+    def __static_code_pop(cls, index: str) -> str:
+        return f"@{cls.filename}.{index}\nD=A\n"
+
+    @classmethod
     def __pop_value_into_d_register(cls):
         return "@SP\nA=M-1\nD=M\n" 
+
+    @classmethod
+    def __indirect_address_temp_and_save_d(cls):
+        return "@temporary\nA=M\nM=D\n"
+    
+    @classmethod
+    def __direct_address_temp_and_save_d(cls):
+        return "@temporary\nM=D\n"
 
     @classmethod
     def __decrement_address(cls):
@@ -105,6 +129,7 @@ class Code_writer:
         # Handle memory instructions
         else:
 
+            # Handle push instructions
             if instruction.memory_ins == 'push':
 
                 if instruction.memory_segment == 'constant':
@@ -114,13 +139,30 @@ class Code_writer:
                 elif instruction.memory_segment == 'static':
                     assembly_code += cls.__static_code_push(instruction.memory_index)
                 elif instruction.memory_segment == 'pointer':
-                    assembly_code += cls.__memory_command_to_assembly_mapping[f'{instruction.memory_segment}{instruction.memory_index}']
+                    assembly_code += cls.__memory_command_to_assembly_mapping_push[f'{instruction.memory_segment}{instruction.memory_index}']
                 else:
                     assembly_code += cls.__store_address_in_d_using_indirect_addressing(instruction)
 
                 assembly_code += cls.__push_d_register_onto_stack() + cls.__increment_stack_pointer()
+
+            # Handle pop instructions
             else:
-                pass
+
+                if instruction.memory_segment != 'constant':
+
+                    if instruction.memory_segment != 'pointer' and instruction.memory_segment != 'static':
+                        assembly_code += cls.__memory_command_to_assembly_mapping_pop[instruction.memory_segment] + cls.__add_value_to_d_register(instruction.memory_index)
+
+                    elif instruction.memory_segment == 'pointer':
+                        assembly_code += cls.__memory_command_to_assembly_mapping_pop[f'{instruction.memory_segment}{instruction.memory_index}']
+
+                    else:
+                        assembly_code += cls.__static_code_pop(instruction.memory_index)
+
+                    assembly_code += cls.__direct_address_temp_and_save_d() + cls.__pop_value_into_d_register() + cls.__decrement_stack_pointer() + cls.__indirect_address_temp_and_save_d()
+                else:
+                    assembly_code += cls.__decrement_stack_pointer()
+
         return assembly_code
 
 
