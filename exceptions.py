@@ -10,3 +10,5 @@ class InvalidPointerIndex(Exception):
 class InvalidCommand(Exception):
     pass
 
+class InvalidFileException(Exception):
+    pass

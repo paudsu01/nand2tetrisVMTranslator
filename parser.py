@@ -28,7 +28,7 @@ class Parser:
         return all_instructions
 
     def advance(self)-> None:
-        if self.__current_pc < self.__max_pc:
+        if self.__current_pc <= self.__max_pc:
             self.__current_pc += 1
 
     def has_more_commands(self) -> bool:
