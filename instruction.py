@@ -23,7 +23,6 @@ class Instruction:
 
             self.__type = Arithmetic_instruction 
             self.__arithmetic_ins = match.group(1)
-            print(self.type, self.arithmetic_ins)
             
         elif len(split_code) == 3:
             match = memory_pattern.match(code)
@@ -34,7 +33,6 @@ class Instruction:
             self.__memory_ins = match.group(1)
             self.__memory_segment = match.group(2)
             self.__memory_index = match.group(3)
-            print(self.type, self.memory_ins, self.memory_index, self.memory_segment)
 
             # if segment is pointer then index can be only 0 or 1
             if self.__memory_segment == 'pointer' and self.__memory_index != '1' and self.__memory_index != '0':
@@ -70,7 +68,7 @@ class Instruction:
     @property
     def type(self) -> Union[Arithmetic_instruction,Memory_instruction]:
         return self.__type
-
+    
 class Arithmetic_instruction():
     pass
 
