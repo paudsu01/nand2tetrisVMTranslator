@@ -117,15 +117,18 @@ class Code_writer:
         # Handle arithmetic instructions
         if instruction.type == Arithmetic_instruction:
 
-            assembly_code += cls.__pop_value_into_d_register() \
-                            + cls.__decrement_address()
+            assembly_code += cls.__pop_value_into_d_register() 
+
+            if instruction.arithmetic_ins not in ['neg', 'not']:
+                assembly_code += cls.__decrement_address()
 
             if instruction.arithmetic_ins in ['eq', 'lt', 'gt']:
                 assembly_code += cls.__code_for_jump(instruction.arithmetic_ins) + cls.__move_d_in_sp_minus_two() 
             else:
                 assembly_code += cls.__arithmetic_command_to_assembly_mapping[instruction.arithmetic_ins]
 
-            assembly_code += cls.__decrement_stack_pointer()
+            if instruction.arithmetic_ins not in ['neg', 'not']:
+                assembly_code += cls.__decrement_stack_pointer()
         # Handle memory instructions
         else:
 

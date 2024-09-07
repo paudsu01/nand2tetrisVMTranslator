@@ -21,7 +21,6 @@ def main(files: List[str]) -> None:
             assembly_code = Code_writer.code(command)
             output_lines += assembly_code
             file_parser.advance()
-            print('stuck here')
     return output_lines
 
 if __name__ == '__main__':
