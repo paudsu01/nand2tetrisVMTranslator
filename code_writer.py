@@ -62,7 +62,7 @@ class Code_writer:
     
     @classmethod
     def __temp_code_push(cls, value: str) -> str:
-        return f"@5\nD=A\n@{value}\nA=A+D\nA=M\nD=M\n"
+        return f"@{5+int(value)}\nD=M\n"
 
     @classmethod
     def __static_code_push(cls, index: str) -> str:
