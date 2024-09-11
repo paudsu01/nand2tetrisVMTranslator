@@ -92,7 +92,7 @@ class Code_writer:
     def __code_for_jump(cls, jump_instruction: str) -> str:
         num = cls.__currentLabelNumber
         cls.__currentLabelNumber += 1
-        return f"D=M-D\n@jumpLabel{num}\n{cls.__arithmetic_command_to_assembly_mapping[jump_instruction]}D=0\n@endLabel{num}\n0;JMP\n(jumpLabel{num})\nD=1\n(endLabel{num})\n"
+        return f"D=M-D\n@jumpLabel{num}\n{cls.__arithmetic_command_to_assembly_mapping[jump_instruction]}D=0\n@endLabel{num}\n0;JMP\n(jumpLabel{num})\nD=-1\n(endLabel{num})\n"
 
     @classmethod
     def __move_d_in_sp_minus_two(cls) -> str:
