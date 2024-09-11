@@ -15,6 +15,7 @@ class Instruction:
         arithmetic_pattern = re.compile(r'^(add|sub|neg|eq|gt|lt|and|or|not)$')
         memory_pattern = re.compile(r'^(push|pop)\s(local|argument|static|constant|this|that|pointer|temp)\s([0-9]+)$')
 
+        label_pattern = re.compile(r'^(label|goto|if-goto) ([.:_a-zA-Z][0-9.:_a-zA-Z]*)$')
         if len(split_code) == 1:
 
             match = arithmetic_pattern.match(code)
@@ -38,8 +39,27 @@ class Instruction:
             if self.__memory_segment == 'pointer' and self.__memory_index != '1' and self.__memory_index != '0':
 
                 raise InvalidPointerIndex("Pointer index value can either be 0 or 1")
+        elif len(split_code) == 2:
+
+            self.__flow_command = True
+            match_ = label_pattern.match(code)
+            if match_ and code.startswith("label"):
+                # label code
+                self.__type = Label
+                self.__label_name = match_.group(2)
+
+            elif match_ and code.startswith("goto"):
+                # goto label code
+                self.__type = Goto_instruction
+                self.__label_name = match_.group(2)
+
+            elif match_ and code.startswith("if-goto"):
+                # if-goto label code
+                self.__type = If_goto_instruction
+                self.__label_name = match_.group(2)
+
         else:
-            raise InvalidCommand("Command has be either arithmetic or memory")
+            raise InvalidCommand("Command has be either arithmetic, memory or program flow command")
 
     @property
     def memory_segment(self) -> Union[str,None]:
@@ -68,9 +88,22 @@ class Instruction:
     @property
     def type(self) -> Union[Arithmetic_instruction,Memory_instruction]:
         return self.__type
+
+    @property
+    def label(self) -> Union[None,str]:
+        return self.__label_name if self.__flow_command else None
     
 class Arithmetic_instruction():
     pass
 
 class Memory_instruction():
+    pass
+
+class Label():
+    pass
+
+class Goto_instruction():
+    pass
+
+class If_goto_instruction():
     pass
