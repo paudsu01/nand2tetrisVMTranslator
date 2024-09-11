@@ -98,19 +98,6 @@ class Code_writer:
     def __move_d_in_sp_minus_two(cls) -> str:
         return "@SP\nA=M-1\nA=A-1\nM=D\n"
 
-    @classmethod
-    def __comment(cls, instruction):
-        if instruction.type == Arithmetic_instruction:
-            return f'// {instruction.arithmetic_ins}\n'
-        elif instruction.type == Memory_instruction:
-            return f'// {instruction.memory_ins} {instruction.memory_segment} {instruction.memory_index}\n'
-        elif instruction.type == Label:
-            return f'// Label {instruction.label}\n'
-        elif instruction.type == Goto_instruction:
-            return f'// goto {instruction.label}\n'
-        elif instruction.type == If_goto_instruction:
-            return f'// if-goto {instruction.label}\n'
-
     """ Public methods """ 
     @classmethod
     def set_file_name(cls, name: str) -> str:
@@ -119,7 +106,8 @@ class Code_writer:
     @classmethod
     def code(cls, instruction: Instruction) -> str:
 
-        assembly_code = cls.__comment(instruction)
+        assembly_code = '// ' + str(instruction)
+
         # Handle arithmetic instructions
         if instruction.type == Arithmetic_instruction:
 

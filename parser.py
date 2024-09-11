@@ -21,7 +21,7 @@ class Parser:
         all_instructions = []
         for line in lines:
 
-            required_line_to_parse = comment_pattern.search(line).group(1)
+            required_line_to_parse = comment_pattern.search(line).group(1).strip()
             # ignore commented part
             if required_line_to_parse != '':
                 all_instructions.append(Instruction(required_line_to_parse))

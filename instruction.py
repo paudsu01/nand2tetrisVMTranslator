@@ -14,8 +14,8 @@ class Instruction:
         split_code = code.split()
         arithmetic_pattern = re.compile(r'^(add|sub|neg|eq|gt|lt|and|or|not)$')
         memory_pattern = re.compile(r'^(push|pop)\s(local|argument|static|constant|this|that|pointer|temp)\s([0-9]+)$')
-
         label_pattern = re.compile(r'^(label|goto|if-goto) ([.:_a-zA-Z][0-9.:_a-zA-Z]*)$')
+
         if len(split_code) == 1:
 
             match = arithmetic_pattern.match(code)
@@ -60,6 +60,19 @@ class Instruction:
 
         else:
             raise InvalidCommand("Command has be either arithmetic, memory or program flow command")
+
+    def __str__(self):
+        if self.type == Arithmetic_instruction:
+            return f'{self.arithmetic_ins}\n'
+        elif self.type == Memory_instruction:
+            return f'{self.memory_ins} {self.memory_segment} {self.memory_index}\n'
+        elif self.type == Label:
+            return f'Label {self.label}\n'
+        elif self.type == Goto_instruction:
+            return f'goto {self.label}\n'
+        elif self.type == If_goto_instruction:
+            return f'if-goto {self.label}\n'
+
 
     @property
     def memory_segment(self) -> Union[str,None]:
