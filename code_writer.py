@@ -1,5 +1,5 @@
 from __future__ import annotations
-from instruction import Arithmetic_instruction, Memory_instruction, Instruction
+from instruction import Arithmetic_instruction, Memory_instruction, Instruction, Label, Goto_instruction, If_goto_instruction
 
 class Code_writer:
     
@@ -104,6 +104,12 @@ class Code_writer:
             return f'// {instruction.arithmetic_ins}\n'
         elif instruction.type == Memory_instruction:
             return f'// {instruction.memory_ins} {instruction.memory_segment} {instruction.memory_index}\n'
+        elif instruction.type == Label:
+            return f'// Label {instruction.label}\n'
+        elif instruction.type == Goto_instruction:
+            return f'// goto {instruction.label}\n'
+        elif instruction.type == If_goto_instruction:
+            return f'// if-goto {instruction.label}\n'
 
     """ Public methods """ 
     @classmethod
@@ -111,7 +117,7 @@ class Code_writer:
         cls.filename = name
 
     @classmethod
-    def code(cls, instruction):
+    def code(cls, instruction: Instruction) -> str:
 
         assembly_code = cls.__comment(instruction)
         # Handle arithmetic instructions
@@ -130,7 +136,7 @@ class Code_writer:
             if instruction.arithmetic_ins not in ['neg', 'not']:
                 assembly_code += cls.__decrement_stack_pointer()
         # Handle memory instructions
-        else:
+        elif instruction.type == Memory_instruction:
 
             # Handle push instructions
             if instruction.memory_ins == 'push':
@@ -165,6 +171,14 @@ class Code_writer:
                     assembly_code += cls.__direct_address_temp_and_save_d() + cls.__pop_value_into_d_register() + cls.__decrement_stack_pointer() + cls.__indirect_address_temp_and_save_d()
                 else:
                     assembly_code += cls.__decrement_stack_pointer()
+        # Handle branching instructions
+        else:
+            if instruction.type == Label:
+                assembly_code += f'({instruction.label})\n'
+            elif instruction.type == Goto_instruction:
+                assembly_code += f'@{instruction.label}\n0;JMP\n'
+            elif instruction.type == If_goto_instruction:
+                assembly_code += cls.__pop_value_into_d_register() + cls.__decrement_stack_pointer() + f'@{instruction.label}\nD;JLT\n' 
 
         return assembly_code
 
