@@ -106,7 +106,7 @@ class Code_writer:
     @classmethod
     def code(cls, instruction: Instruction) -> str:
 
-        assembly_code = '// ' + str(instruction)
+        assembly_code = '// ' + str(instruction) + '\n'
 
         # Handle arithmetic instructions
         if instruction.type == Arithmetic_instruction:

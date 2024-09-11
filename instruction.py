@@ -61,17 +61,17 @@ class Instruction:
         else:
             raise InvalidCommand("Command has be either arithmetic, memory or program flow command")
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.type == Arithmetic_instruction:
-            return f'{self.arithmetic_ins}\n'
+            return f'{self.arithmetic_ins}'
         elif self.type == Memory_instruction:
-            return f'{self.memory_ins} {self.memory_segment} {self.memory_index}\n'
+            return f'{self.memory_ins} {self.memory_segment} {self.memory_index}'
         elif self.type == Label:
-            return f'Label {self.label}\n'
+            return f'Label {self.label}'
         elif self.type == Goto_instruction:
-            return f'goto {self.label}\n'
+            return f'goto {self.label}'
         elif self.type == If_goto_instruction:
-            return f'if-goto {self.label}\n'
+            return f'if-goto {self.label}'
 
 
     @property

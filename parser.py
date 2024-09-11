@@ -9,7 +9,7 @@ class Parser:
     def __init__(self, filename: str) -> None:
 
         with open(filename, 'r') as infile:
-            lines = [i.strip().lower() for i in infile.readlines()]
+            lines = [i.strip() for i in infile.readlines()]
 
         # remove comments and count number of commands
         self.__commands = self.__first_scan(lines)
