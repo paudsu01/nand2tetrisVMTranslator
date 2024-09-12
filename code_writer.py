@@ -166,7 +166,7 @@ class Code_writer:
             elif instruction.type == Goto_instruction:
                 assembly_code += f'@{instruction.label}\n0;JMP\n'
             elif instruction.type == If_goto_instruction:
-                assembly_code += cls.__pop_value_into_d_register() + cls.__decrement_stack_pointer() + f'@{instruction.label}\nD;JLT\n' 
+                assembly_code += cls.__pop_value_into_d_register() + cls.__decrement_stack_pointer() + f'@{instruction.label}\nD;JNE\n' 
 
         return assembly_code
 
