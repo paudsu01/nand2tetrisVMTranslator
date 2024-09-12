@@ -107,6 +107,62 @@ class Code_writer:
         return "@SP\nA=M-1\nA=A-1\nM=D\n"
 
     @classmethod
+    def __code_to_push_ram_value_onto_stack(cls, address: int) -> str:
+        return f'@{address}\nD=M\n' + cls.__push_d_register_onto_stack() + cls.__increment_stack_pointer() 
+
+    @classmethod
+    def __return_restore_value(cls, saved_values_address: int, minus_value: int) -> str:
+        return f'@{minus_value}\nD=A\n@5\nD=M-D\nA=D\nD=M\n@{saved_values_address}\nM=D\n'
+
+    @classmethod
+    def __generate_return_assembly_code(cls) -> str:
+
+        assembly_code_list = []
+        # FRAME = LCL
+        assembly_code_list.append('@LCL\nD=M\n@5\nM=D\n')
+        # RET = *(FRAME-5)
+        assembly_code_list.append(cls.__return_restore_value(6, 5))
+        # *ARG = pop()
+        assembly_code_list.append(cls.__pop_value_into_d_register() + '@ARG\nA=M\nM=D\n')
+        # SP=ARG+1
+        assembly_code_list.append('@ARG\nD=M+1\n@SP\nM=D\n')
+        # THAT= *(FRAME-1)
+        assembly_code_list.append(cls.__return_restore_value(4,1))
+        # THIS= *(FRAME-2)
+        assembly_code_list.append(cls.__return_restore_value(3,2))
+        # ARG= *(FRAME-3)
+        assembly_code_list.append(cls.__return_restore_value(2,3))
+        # LCL= *(FRAME-4)
+        assembly_code_list.append(cls.__return_restore_value(1,4))
+        # goto RET
+        assembly_code_list.append('@6\nA=M\n0;JMP\n')
+
+        return ''.join(assembly_code_list)
+
+    @classmethod
+    def __generate_call_function_assembly_code(cls, instruction: Instruction) -> str:
+       
+        # assembly_code to push return address onto stack
+        assembly_code = [f'//push return-address, LCL, ARG, THIS, THAT\n@{instruction.function_name}$return\nD=A\n' + cls.__push_d_register_onto_stack() + cls.__increment_stack_pointer()]
+
+        # push LCL, ARG, THIS, THAT
+        for i in range(1,5):
+            assembly_code.append(cls.__code_to_push_ram_value_onto_stack(i))
+
+        # Change ARG pointer to SP-(n+5)
+        assembly_code.append(f'//ARG=SP-n-5\n@{len(instruction)+5}\nD=A\n@SP\nD=M-D\n@ARG\nM=D\n')
+        # Change LCL pointer to SP
+        assembly_code.append('//LCL=SP\n@SP\nD=M\n@LCL\nM=D\n')
+
+        # goto functionName 
+        assembly_code.append(f'goto {instruction.function_name}\n')
+        # add (functionName$return) label
+        assembly_code.append(f'({instruction.function_name}$return)\n')
+
+        return ''.join(assembly_code)
+
+
+    @classmethod
     def __generate_function_definition_assembly_code(cls, instruction : Instruction) -> str:
         assembly_code = f'({instruction.function_name})\n'
         for i in range(len(instruction)):
@@ -179,6 +235,12 @@ class Code_writer:
         elif instruction.type == Function_instruction:
             assembly_code += cls.__generate_function_definition_assembly_code(instruction)
 
+        elif instruction.type == Call_instruction:
+            assembly_code += cls.__generate_call_function_assembly_code(instruction)
+
+        elif instruction.type == Return_instruction:
+            assembly_code += cls.__generate_return_assembly_code()
+        
         # Handle branching instructions
         else:
             if instruction.type == Label:
