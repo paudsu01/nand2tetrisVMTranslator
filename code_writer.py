@@ -78,11 +78,11 @@ class Code_writer:
 
     @classmethod
     def __indirect_address_temp_and_save_d(cls):
-        return "@temporary\nA=M\nM=D\n"
+        return "@5\nA=M\nM=D\n"
     
     @classmethod
     def __direct_address_temp_and_save_d(cls):
-        return "@temporary\nM=D\n"
+        return "@5\nM=D\n"
 
     @classmethod
     def __decrement_address(cls):
