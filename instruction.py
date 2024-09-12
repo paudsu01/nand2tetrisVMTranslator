@@ -21,8 +21,8 @@ class Instruction:
         arithmetic_pattern = re.compile(r'^(add|sub|neg|eq|gt|lt|and|or|not)$')
         memory_pattern = re.compile(r'^(push|pop)\s(local|argument|static|constant|this|that|pointer|temp)\s([0-9]+)$')
         label_pattern = re.compile(r'^(label|goto|if-goto) ([.:_a-zA-Z][0-9.:_a-zA-Z]*)$')
-        function_pattern = re.compile(r'function ([A-Za-z0-9_]+) (\d+)')
-        call_pattern = re.compile(r'call ([A-Za-z0-9_]+) (\d+)')
+        function_pattern = re.compile(r'function ([A-Za-z_:.][A-Za-z0-9_:.]+) (\d+)')
+        call_pattern = re.compile(r'call ([A-Za-z_:.][A-Za-z0-9_:.]+) (\d+)')
 
         if len(split_code) == 1:
 
