@@ -170,4 +170,8 @@ class Code_writer:
 
         return assembly_code
 
+        @staticmethod
+        def number_of_assembly_lines(code : str) -> int:
 
+            # Doesn't count commented lines
+            return code.count('\n') - code.count('//')

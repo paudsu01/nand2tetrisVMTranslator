@@ -13,13 +13,17 @@ def write_to_file(output_lines: str, output_file: str) -> None:
 
 def main(files: List[str]) -> None:
     output_lines = str()
+    assembly_lines_generated = 0
     for file in files:
         file_parser = Parser(file)
         Code_writer.set_file_name(file)
         while file_parser.has_more_commands():
+
             command = file_parser.current_command
             assembly_code = Code_writer.code(command)
             output_lines += assembly_code
+            assembly_lines_generated += Code_writer.number_of_assembly_lines(assembly_code)
+
             file_parser.advance()
     return output_lines
 
