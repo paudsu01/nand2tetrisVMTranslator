@@ -1,5 +1,13 @@
 from __future__ import annotations
-from instruction import Arithmetic_instruction, Memory_instruction, Instruction, Label, Goto_instruction, If_goto_instruction
+from instruction import Arithmetic_instruction, \
+                        Memory_instruction, \
+                        Instruction,\
+                        Label, \
+                        Goto_instruction,\
+                        If_goto_instruction, \
+                        Function_instruction, \
+                        Return_instruction, \
+                        Call_instruction
 
 class Code_writer:
     
@@ -98,6 +106,14 @@ class Code_writer:
     def __move_d_in_sp_minus_two(cls) -> str:
         return "@SP\nA=M-1\nA=A-1\nM=D\n"
 
+    @classmethod
+    def __generate_function_definition_assembly_code(cls, instruction : Instruction) -> str:
+        assembly_code = f'({instruction.function_name})\n'
+        for i in range(len(instruction)):
+            push_0_instruction = Instruction('push constant 0')
+            assembly_code += Code_writer.code(push_0_instruction)
+        return assembly_code
+
     """ Public methods """ 
     @classmethod
     def set_file_name(cls, name: str) -> str:
@@ -159,6 +175,10 @@ class Code_writer:
                     assembly_code += cls.__direct_address_temp_and_save_d() + cls.__pop_value_into_d_register() + cls.__decrement_stack_pointer() + cls.__indirect_address_temp_and_save_d()
                 else:
                     assembly_code += cls.__decrement_stack_pointer()
+
+        elif instruction.type == Function_instruction:
+            assembly_code += cls.__generate_function_definition_assembly_code(instruction)
+
         # Handle branching instructions
         else:
             if instruction.type == Label:
@@ -170,8 +190,8 @@ class Code_writer:
 
         return assembly_code
 
-        @staticmethod
-        def number_of_assembly_lines(code : str) -> int:
+    @staticmethod
+    def number_of_assembly_lines(code : str) -> int:
 
             # Doesn't count commented lines
             return code.count('\n') - code.count('//')

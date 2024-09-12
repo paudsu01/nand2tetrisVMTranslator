@@ -111,6 +111,12 @@ class Instruction:
             return f'goto {self.label}'
         elif self.type == If_goto_instruction:
             return f'if-goto {self.label}'
+        elif self.type == Function_instruction:
+            return f'function {self.function_name} {len(self)}'
+        elif self.type == Call_instruction:
+            return f'call {self.function_name} {len(self)}'
+        elif self.type == Return_instruction:
+            return 'return'
 
     # Returns number of arguments for call instruction,
     # number of local variables for function instruction, 0 otherwise
