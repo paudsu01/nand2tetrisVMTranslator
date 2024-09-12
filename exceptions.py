@@ -12,3 +12,9 @@ class InvalidCommand(Exception):
 
 class InvalidFileException(Exception):
     pass
+
+class InvalidFunctionCommand(Exception):
+    pass
+
+class InvalidCallCommand(Exception):
+    pass
