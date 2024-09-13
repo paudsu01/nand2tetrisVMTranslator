@@ -12,6 +12,7 @@ from instruction import Arithmetic_instruction, \
 class Code_writer:
     
     __currentLabelNumber = 0
+    __currentReturnNumber = 0
     __memory_command_to_assembly_mapping_pop = {
             'local': "@LCL\nD=M\n",
             'argument': "@ARG\nD=M\n",
@@ -143,7 +144,7 @@ class Code_writer:
     def __generate_call_function_assembly_code(cls, instruction: Instruction) -> str:
        
         # assembly_code to push return address onto stack
-        assembly_code = [f'//push return-address, LCL, ARG, THIS, THAT\n@{instruction.function_name}$return\nD=A\n' + cls.__push_d_register_onto_stack() + cls.__increment_stack_pointer()]
+        assembly_code = [f'//push return-address, LCL, ARG, THIS, THAT\n@{instruction.function_name}$return{cls.__currentReturnNumber}\nD=A\n' + cls.__push_d_register_onto_stack() + cls.__increment_stack_pointer()]
 
         # push LCL, ARG, THIS, THAT
         for i in range(1,5):
@@ -157,7 +158,9 @@ class Code_writer:
         # goto functionName 
         assembly_code.append(f'@{instruction.function_name}\n0;JMP\n')
         # add (functionName$return) label
-        assembly_code.append(f'({instruction.function_name}$return)\n')
+        assembly_code.append(f'({instruction.function_name}$return{cls.__currentReturnNumber})\n')
+
+        cls.__currentReturnNumber += 1
 
         return ''.join(assembly_code)
 
