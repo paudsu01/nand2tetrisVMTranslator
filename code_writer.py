@@ -172,6 +172,10 @@ class Code_writer:
 
     """ Public methods """ 
     @classmethod
+    def startup_code(cls) -> str:
+        return '// Set SP=256\n@256\nD=A\n@SP\nM=D\n' + cls.code(Instruction('goto Sys.init'))
+
+    @classmethod
     def set_file_name(cls, name: str) -> str:
         cls.filename = name
 

@@ -12,7 +12,7 @@ def write_to_file(output_lines: str, output_file: str) -> None:
         out.write(output_lines)
 
 def main(files: List[str]) -> None:
-    output_lines = str()
+    output_lines = Code_writer.startup_code()
     assembly_lines_generated = 0
     for file in files:
         file_parser = Parser(file)
