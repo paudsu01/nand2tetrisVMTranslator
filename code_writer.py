@@ -155,7 +155,7 @@ class Code_writer:
         assembly_code.append('//LCL=SP\n@SP\nD=M\n@LCL\nM=D\n')
 
         # goto functionName 
-        assembly_code.append(f'goto {instruction.function_name}\n')
+        assembly_code.append(f'@{instruction.function_name}\n0;JMP\n')
         # add (functionName$return) label
         assembly_code.append(f'({instruction.function_name}$return)\n')
 
